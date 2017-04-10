@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%- title %></title>
+    <%- include('commonfile.html') %>
+    <script>
+        var isLogin = <%= isLogin %>;
+    </script>
+</head>
+<body ng-app="myApp" ng-controller="myCtr">
+    这是首页
+    <div ng-if="!isLogin">
+        <button id="login" class="btn btn-success" ng-click="gotologin()">去登录页</button>
+    </div>
+    <div ng-if="isLogin">
+        <span>恭喜你登录成功了</span>
+        <button ng-click="loginout()" class="btn btn-info">退出登录</button>
+    </div>
+</body>
+<script src="javascripts/index.js"></script>
+</html>

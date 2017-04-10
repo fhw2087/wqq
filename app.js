@@ -9,6 +9,7 @@ var bodyParser = require('body-parser');
 var index = require('./routes/index');
 var users = require('./routes/users');
 var login = require('./routes/loginCtr');
+var register = require('./routes/register');
 
 var app = express();
 
@@ -36,13 +37,14 @@ app.use(function (req, res, next) {
    console.log('query:',req.query);
    console.log('body:',req.body);
    console.log('hostname:',req.hostname);
-    console.log('sessionsign:',req.session.sign);
+   console.log('sessionsign:',req.session.sign);
    next();
 });
 
 app.use('/', index);
 app.use('/users', users);
 app.use('/login', login);
+app.use('/register', register);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

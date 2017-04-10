@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title><%- title %></title>
+    <title>首页</title>
     <%- include('commonfile.html') %>
     <script>
         var isLogin = <%= isLogin %>;
@@ -10,11 +10,11 @@
 </head>
 <body ng-app="myApp" ng-controller="myCtr">
     这是首页shiyantijiao
-    <div ng-if="!isLogin">
+    <div ng-if="!isLogin" ng-cloak>
         <button id="login" class="btn btn-success" ng-click="gotologin()">去登录页</button>
     </div>
-    <div ng-if="isLogin">
-        <span>恭喜你登录成功了</span>
+    <div ng-if="isLogin" ng-cloak>
+        <span>欢迎你<%- userName %></span>
         <button ng-click="loginout()" class="btn btn-info">退出登录</button>
     </div>
 </body>

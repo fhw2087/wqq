@@ -6,14 +6,44 @@ var router = express.Router();
 var mysql = require('mysql');
 
 /* GET users listing. */
-router.get('/',function (req, res, nest) {
-    if(req.app.locals.user == 'wqq'){
-        res.render('index', { title: '首页',isLogin:req.app.locals.user == 'wqq'? true:false });
-        return;
+router.get('/',function (req, res, next) {
+    var sign = req.session.sign;
+    if(sign){
+        var connection = mysql.createConnection({
+            host: 'localhost',
+            user: 'root',
+            password: '2087',
+            database:'fhw'
+        });
+        var sql_query_session ='SELECT * FROM usersession WHERE session = "'+ sign.split('-')[0] +'"';
+        connection.query(sql_query_session,function (err,rows, result) {
+            if(err){
+                console.log('[SELECT ERROR] - ',err.message);
+                return;
+            }
+            console.log('---------------SELECT----------------');
+            console.log('查询session成功');
+            if(rows[0] && rows[0].user_name == sign.split('-')[1]){
+                var viewParams = {
+                    isLogin:true
+                };
+                res.render('login', viewParams);
+                return;
+            }else{
+                var viewParams = {
+                    isLogin:false
+                };
+                res.render('login', viewParams);
+                return;
+            }
+        });
+        connection.end();
+    }else {
+        var viewParams = {
+            isLogin:false
+        };
+        res.render('login', viewParams);
     }
-    res.locals.msg = 'wqq';
-    res.locals.title = 'wqq';
-    res.render('login');
 });
 
 router.post('/login', function(req, res, next) {
@@ -29,68 +59,37 @@ router.post('/login', function(req, res, next) {
     connection.query(sql, function(err, rows, fields) {
         if (err) throw err;
         if(rows[0] && rows[0].pass_word == req.body.password){
-            var sql_query_sign = "SELECT * FROM user WHERE user_name ='"+req.session.sign && req.session.sign.split('-')[0]+"'";
-            connection.query(sql_query_sign, function(err, rows, fields) {
-                if (err) throw err;
-                var sign = Math.ceil(Math.random()*1000000000000);
-                req.session.sign = sign+'-'+req.body.username;
-                if(rows[0] && rows[0].user_name ==req.session.sign.split('-')[1] ){
-                    var userModSql = 'UPDATE userSession SET login_time = ?,session = ? WHERE user_name = ?';
-                    var userModSql_data = [ new Date().getTime(),sign,req.body.username];
-                    connection.query(userModSql,userModSql_data,function (err, result) {
-                        if(err){
-                            console.log('[UPDATE ERROR] - ',err.message);
-                            connection.end();
-                            return;
-                        }
-                        console.log('-------UPDATE----------');
-                        console.log('UPDATE ID:',result);
-                        console.log('#######################');
-                    });
-                }else{
-                    var sql_session = 'INSERT INTO userSession(id,user_name,login_time,session) VALUES(0,?,?,?)';
-                    var sql_data = [req.body.username, new Date().getTime(),sign];
-                    connection.query(sql_session,sql_data,function (err, result) {
-                        if(err){
-                            console.log('[INSERT ERROR] - ',err.message);
-                            connection.end();
-                            return;
-                        }
-                        console.log('-------INSERT----------');
-                        console.log('INSERT ID:',result);
-                        console.log('#######################');
-                    });
+            req.session.sign = Math.ceil(10000000000000*Math.random())+'-'+req.body.username;
+            var sql_add_session = 'INSERT INTO usersession(id,user_name,login_time,session) VALUES(0,?,?,?)';
+            var sql_add_session_params = [req.body.username,new Date().getTime(),req.session.sign.split('-')[0]];
+            connection.query(sql_add_session,sql_add_session_params,function (err, result) {
+                if(err){
+                    console.log('[INSERT ERROR] - ',err.message);
+                    return;
                 }
+                console.log('-------INSERT----------');
+                console.log('session 存储成功');
+                console.log('INSERT ID:',result);
+                console.log('#######################');
+                connection.end();
             });
-            resJson = {
-                'success':true,
-                'msg':'登录成功'
+            var resJson = {
+                success:true,
+                msg:'登录成功'
             };
             res.json(resJson);
-        }else{
-            resJson = {
-                'success':false,
-                'msg':'账号密码错误'
+        }else {
+            var resJson = {
+                success:false,
+                msg:'用户名密码错误'
             };
-            connection.end();
             res.json(resJson);
         }
     });
 });
 
 router.get('/loginOut', function(req, res, next) {
-    // connection.connect();
-    // var  userDelSql = 'DELETE FROM userSession WHERE user_name = "++"';
-    // connection.query(userDelSql,function (err, result) {
-    //     if(err){
-    //         console.log('[DELETE ERROR] - ',err.message);
-    //         return;
-    //     }
-    //
-    //     console.log('-------------DELETE--------------');
-    //     console.log('DELETE affectedRows',result.affectedRows);
-    //     console.log('&&&&&&&&&&&&&&&&&');
-    // });
+    req.session.sign = null;
     var resJson = {
         success:true,
         msg:'退出成功'

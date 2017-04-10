@@ -4,6 +4,7 @@
 var express = require('express');
 var router = express.Router();
 var mysql = require('mysql');
+var config = require('../config/config');
 
 /* GET users listing. */
 router.get('/',function (req, res, next) {
@@ -12,13 +13,8 @@ router.get('/',function (req, res, next) {
 
 router.get('/checkUsername',function (req, res, next) {
     if(req.query.username){
-        var connection = mysql.createConnection({
-            host: 'localhost',
-            user: 'root',
-            password: '2087',
-            database:'fhw'
-        });
-        var sql_query_checkUsername = 'SELECT * FROM user WHERE user_name = "'+ req.query.username +'"';
+        var connection = mysql.createConnection(config.mySql);
+        var sql_query_checkUsername = config.addSql('user','user_name',req.query.username);
         connection.query(sql_query_checkUsername,function (err,rows, result) {
             if(err){
                 console.log('[SELECT ERROR] - ',err.message);
@@ -50,12 +46,7 @@ router.post('/register',function (req, res, next) {
     var username = req.body.username;
     var password = req.body.password;
     if(username && password){
-        var connection = mysql.createConnection({
-            host: 'localhost',
-            user: 'root',
-            password: '2087',
-            database:'fhw'
-        });
+        var connection = mysql.createConnection(config.mySql);
         var sql_query_checkUsername = 'SELECT * FROM user WHERE user_name = "'+ username +'"';
         connection.query(sql_query_checkUsername,function (err,rows, result) {
             if(err){

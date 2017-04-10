@@ -1,17 +1,13 @@
 var express = require('express');
 var router = express.Router();
 var mysql = require('mysql');
+var config = require('../config/config');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   var sign = req.session.sign;
   if(sign){
-      var connection = mysql.createConnection({
-          host: 'localhost',
-          user: 'root',
-          password: '2087',
-          database:'fhw'
-      });
+      var connection = mysql.createConnection(config.mySql);
       var sql_query_session ='SELECT * FROM usersession WHERE session = "'+ sign.split('-')[0] +'"';
       connection.query(sql_query_session,function (err,rows, result) {
           if(err){

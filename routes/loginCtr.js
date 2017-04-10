@@ -4,17 +4,13 @@
 var express = require('express');
 var router = express.Router();
 var mysql = require('mysql');
+var config = require('../config/config');
 
 /* GET users listing. */
 router.get('/',function (req, res, next) {
     var sign = req.session.sign;
     if(sign){
-        var connection = mysql.createConnection({
-            host: 'localhost',
-            user: 'root',
-            password: '2087',
-            database:'fhw'
-        });
+        var connection = mysql.createConnection(config.mySql);
         var sql_query_session ='SELECT * FROM usersession WHERE session = "'+ sign.split('-')[0] +'"';
         connection.query(sql_query_session,function (err,rows, result) {
             if(err){
@@ -47,12 +43,7 @@ router.get('/',function (req, res, next) {
 });
 
 router.post('/login', function(req, res, next) {
-    var connection = mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: '2087',
-        database:'fhw'
-    });
+    var connection = mysql.createConnection(config.mySql);
     connection.connect();
     var sql = "SELECT * FROM user WHERE user_name ='"+req.body.username+"'";
     var resJson;

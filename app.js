@@ -7,7 +7,6 @@ var session = require("express-session");
 var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
-var users = require('./routes/users');
 var login = require('./routes/loginCtr');
 var register = require('./routes/register');
 
@@ -36,13 +35,11 @@ app.use(function (req, res, next) {
    console.log('time: ',new Date().toLocaleTimeString());
    console.log('query:',req.query);
    console.log('body:',req.body);
-   console.log('hostname:',req.hostname);
    console.log('sessionsign:',req.session.sign);
-   next();
+    next();
 });
 
 app.use('/', index);
-app.use('/users', users);
 app.use('/login', login);
 app.use('/register', register);
 

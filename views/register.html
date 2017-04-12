@@ -6,12 +6,19 @@
     <%- include('commonfile.html') %>
 </head>
 <body ng-app="myApp" ng-controller="regCtr">
-    <div ng-cloak>
+    <div ng-cloak class="page">
+        <h3 class="tc text-danger">请如实填写姓名和部门，不要重复用一个姓名注册，不要尝试攻击服务器！！！</h3>
         <form class="form-horizontal" role="form" style="width:600px">
             <div class="form-group">
                 <label class="col-sm-2 control-label">用户名</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" ng-model="user.userName" ng-blur="checkUsername()" placeholder="请输入用户名">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">姓名</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" ng-model="user.name" ng-blur="checkUsername()" placeholder="请输入姓名">
                 </div>
             </div>
             <div class="form-group">
@@ -24,6 +31,20 @@
                 <label class="col-sm-2 control-label">确认密码</label>
                 <div class="col-sm-10">
                     <input type="password" class="form-control" ng-blur="checkPassword()" ng-model="user.passWord2" placeholder="请输入密码">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">花名</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" ng-blur="checkPassword()" ng-model="user.fname" placeholder="请输入花名">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">部门</label>
+                <div class="col-sm-10">
+                    <select class="form-control" ng-model="user.part" id="part">
+                        <option value="{{$index}}" ng-repeat="p in part">{{p}}</option>
+                    </select>
                 </div>
             </div>
         </form>

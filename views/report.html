@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>报告</title>
+    <%- include('commonfile.html') %>
+    <script>
+        var username = '<%- username %>';
+        var name = '<%- name %>';
+        var level = '<%- level %>';
+        var fname = '<%- fname %>';
+        var part = '<%- part %>'-0;
+    </script>
+    <link href="bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <script src="bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+</head>
+<body ng-app="myApp" ng-controller="reportCtr">
+    <div class="page" ng-cloak>
+        <ul class="nav pull-left pointer">
+            <li class="nav-li" ng-click="changeTab(0)">填写自己日报</li>
+            <li class="nav-li" ng-click="changeTab(1)">查看自己日报</li>
+            <li class="nav-li" ng-if="user.level < 3" ng-click="changeTab(2)">查看所有日报</li>
+        </ul>
+        <div class="report-content pull-right" ng-show="reportConfig.activeTabIndex == 0">
+            <h2 class="tc">填写日报</h2>
+            <div style="margin-bottom: 20px">
+                选择填写日期：<input readonly id="myReportAddDate" class="form-control" style="display: inline;width: 150px" ng-model="reportConfig.myAddDate" placeholder="选择日期" />
+                <i id="myReportAddDate_1" class="fa fa-calendar" style="position: relative; top: 2px; left: -25px; color: #ff8b00;"></i>
+                <button class="btn btn-info" ng-click="queryAddReport()">查 询</button>
+            </div>
+            <div class="form-group clearfix rel" style="width: 80%" ng-repeat="nr in reportConfig.nowReport">
+                <div class="zhezhao" ng-show="reportConfig.hasConfirm" title="点击修改才能操作"></div>
+                <label class="col-sm-1 control-label">事项</label>
+                <div class="col-sm-6">
+                    <textarea style="height: 60px;" class="form-control" ng-model="nr.content" placeholder="请输入事项"></textarea>
+                </div>
+                <label class="col-sm-1 control-label">时长</label>
+                <div class="col-sm-2">
+                    <input type="number" class="form-control" ng-blur="checkDur($index,nr.dur)" ng-model="nr.dur"  placeholder="请输入时长">
+                </div>
+                <button class="btn btn-link col-sm-2" ng-click="deleteItem($index)">删除该项</button>
+            </div>
+            <button class="btn btn-link" ng-click="addNewItem()" ng-show="!reportConfig.hasConfirm">添加新的事项</button><br>
+            <button class="btn btn-success" ng-click="confirm()" ng-show="!reportConfig.hasConfirm"><i class="fa fa-spin fa-spiner"></i>确认提交</button>
+            <button class="btn btn-success" ng-click="reportConfig.isChange = true;reportConfig.hasConfirm = false" ng-show="reportConfig.hasConfirm"><i class="fa fa-spin fa-spiner"></i>修 改</button>
+        </div>
+        <div class="report-content pull-right" ng-show="reportConfig.activeTabIndex == 1">
+            <h2 class="tc">查看历史日报</h2>
+            选择日报日期：<input id="myReportDate" class="form-control" style="display: inline;width: 150px" ng-model="reportConfig.myReportDate" placeholder="选择日期" />
+            <i id="myReportDate_1" class="fa fa-calendar" style="position: relative; top: 2px; left: -25px; color: #ff8b00;"></i>
+            <button class="btn btn-info" ng-click="queryMyReport()">查 询</button>
+            <div style="margin-top: 20px" ng-show="reportConfig.myDateReport.length">
+                <h4 class="tc" ng-bind="user.name+reportConfig.myReportDate+'日报'"></h4>
+                <div class="form-group clearfix rel" style="width: 80%" ng-repeat="nr in reportConfig.myDateReport">
+                    <label class="col-sm-1 control-label">事项</label>
+                    <div class="col-sm-6">
+                        <textarea style="height: 60px;" class="form-control" ng-model="nr.content" placeholder="请输入事项" disabled></textarea>
+                    </div>
+                    <label class="col-sm-1 control-label">时长</label>
+                    <div class="col-sm-2">
+                        <input type="number" class="form-control" ng-blur="checkDur($index,nr.dur)" ng-model="nr.dur"  placeholder="请输入时长" disabled>
+                    </div>
+                </div>
+            </div>
+            <p style="margin-top: 20px" class="text-danger" ng-show="!reportConfig.myDateReport.length">点击查询/查询无记录</p>
+        </div>
+        <div class="report-content pull-right" ng-show="reportConfig.activeTabIndex == 2">
+            <div class="part-tree pull-left" style="width: 150px">
+                <ul>
+                    <li ng-repeat="p in reportConfig.partTree">
+                        <span ng-bind="partC[$index]" style="margin-right: 10px"></span><i class="fa fa-plus pointer" ng-show="!p.isShow && p.length" ng-click="p.isShow = true"></i>
+                        <i class="fa fa-minus pointer" ng-show="p.isShow && p.length" ng-click="p.isShow = false"></i>
+                        <ul ng-show="p.isShow">
+                            <li ng-repeat="u in p" class="pointer">
+                                <span ng-bind="u.name" ng-click="reportConfig.queryPerName = u.name;reportConfig.queryPerUsername = u.username"></span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="report-tree pull-right" style="width: 800px">
+                <div style="margin: 10px 0;padding: 10px" class="pointer" ng-class="{'part-query':reportConfig.partQuery,'part-query-no':!reportConfig.partQuery}" ng-click="reportConfig.partQuery = true;reportConfig.queryReportC=[]">
+                    点击左侧部门区域，选择一个名字，点击查询，可查看该用户所有日报<br>
+                    <div ng-show="reportConfig.queryPerName && reportConfig.partQuery" ng-bind="'查看 '+reportConfig.queryPerName+' 的日报'" style="margin: 10px" class="text-success"></div>
+                </div>
+                <div style="margin: 10px 0;padding: 10px" class="pointer" ng-class="{'part-query':!reportConfig.partQuery,'part-query-no':reportConfig.partQuery}" ng-click="reportConfig.partQuery = false;reportConfig.queryReportC=[]">
+                    选择查看日期：<input id="queryPerDate" readonly class="form-control" style="display: inline;width: 150px" ng-model="reportConfig.queryPerDate" placeholder="选择日期" />
+                    <i id="queryPerDate_1" class="fa fa-calendar" style="position: relative; top: 2px; left: -25px; color: #ff8b00;"></i>点击查询，查看当日所有人员日报
+                    <div ng-show="reportConfig.queryPerDate && !reportConfig.partQuery" ng-bind="'查看 '+reportConfig.queryPerDate+' 的所有人员日报'" style="margin: 10px" class="text-success"></div>
+                </div>
+                <button class="btn btn-success" ng-click="queryAllReport()">查 询</button>
+                <div class="">
+                    <div ng-repeat="r in reportConfig.queryReportC">
+                        <div style="width: 300px;line-height: 30px;background-color: #3399cc;padding: 0 10px;margin-top: 10px;border-radius: 5px;color: #fff;" ng-click="r.isShow = !r.isShow">
+                            <span ng-bind="r.name+' '+r.date+'日报'"></span>
+                            <i style="margin-top: 8px" class="fa fa-angle-double-down pull-right pointer" ng-show="!r.isShow">展开</i>
+                            <i style="margin-top: 8px" class="fa fa-angle-double-up pull-right pointer" ng-show="r.isShow">收起</i>
+                        </div>
+                        <div ng-show="r.isShow" style="margin: 10px 0;border:1px solid #3399cc;padding-top: 10px;border-radius:5px">
+                            <div class="form-group clearfix rel" style="width: 90%" ng-repeat="nr in r.report">
+                                <label class="col-sm-1 control-label">事项</label>
+                                <div class="col-sm-6">
+                                    <textarea style="height: 60px;" class="form-control" ng-model="nr.content" placeholder="请输入事项" disabled></textarea>
+                                </div>
+                                <label class="col-sm-1 control-label">时长</label>
+                                <div class="col-sm-2">
+                                    <input type="number" class="form-control" ng-blur="checkDur($index,nr.dur)" ng-model="nr.dur"  placeholder="请输入时长" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-danger" ng-show="!reportConfig.queryReportC.length">点击查询/查询无信息</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="javascripts/report.js"></script>
+</body>
+</html>

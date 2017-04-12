@@ -16,7 +16,7 @@ App.controller("loginCtr", ["$scope", "$http", "$timeout", function ($scope, $ht
         }).success(function (data) {
             if(data.success && data.msg == '登录成功'){
                 setTimeout(function () {
-                    window.location.href = '/';
+                    window.location.href = 'report';
                 },500);
             }else{
                 alert(data.msg);

@@ -45,7 +45,10 @@ router.get('/checkUsername',function (req, res, next) {
 router.post('/register',function (req, res, next) {
     var username = req.body.username;
     var password = req.body.password;
-    if(username && password){
+    var name = req.body.name;
+    var fname = req.body.fname;
+    var part = req.body.part;
+    if(username && password && name && fname && part){
         var connection = mysql.createConnection(config.mySql);
         var sql_query_checkUsername = 'SELECT * FROM user WHERE user_name = "'+ username +'"';
         connection.query(sql_query_checkUsername,function (err,rows, result) {
@@ -61,8 +64,8 @@ router.post('/register',function (req, res, next) {
                 });
                 connection.end();
             }else {
-                var sql_add_user = 'INSERT INTO user(id,user_name,pass_word) VALUES(0,?,?)';
-                var sql_add_user_params = [username,password];
+                var sql_add_user = 'INSERT INTO user(id,user_name,pass_word,name,fname,part) VALUES(0,?,?,?,?,?)';
+                var sql_add_user_params = [username,password,name,fname,part];
                 connection.query(sql_add_user,sql_add_user_params,function (err, result) {
                     if(err){
                         console.log('[INSERT ERROR] - ',err.message);

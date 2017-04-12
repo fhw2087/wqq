@@ -36,6 +36,7 @@ app.use(express.static(path.join(__dirname, 'bower_components')));
 app.use(function (req, res, next) {
    console.log('time: ',new Date().toLocaleTimeString());
    console.log('query:',req.query);
+   console.log('你个傻逼');
    console.log('body:',req.body);
    console.log('sessionsign:',req.session.sign);
     next();
